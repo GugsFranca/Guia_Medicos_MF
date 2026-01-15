@@ -1,0 +1,24 @@
+package com.guiamedicosback.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@Builder
+public class Procedimento {
+
+    private String nome;
+    @Column(columnDefinition = "TEXT")
+    private String especializacao; // Ex: "Imagem", "Laboratorial", "Fisioterapia"
+
+    public Procedimento(String especializacao, String procedimentoDesc) {
+        this.especializacao = especializacao;
+        this.nome = procedimentoDesc;
+    }
+}
