@@ -1,10 +1,11 @@
 package com.guiamedicosback.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.HashSet;
-import java.util.Set;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Embeddable
 @Getter
@@ -12,7 +13,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class Procedimento {
-
     private String nome;
     @Column(columnDefinition = "TEXT")
     private String especializacao; // Ex: "Imagem", "Laboratorial", "Fisioterapia"

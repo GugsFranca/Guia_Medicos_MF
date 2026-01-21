@@ -15,6 +15,7 @@ public class ClinicaMapper {
     protected ClinicaDTO toClinicaDTO(Clinica clinica) {
         if (clinica == null) return null;
         return ClinicaDTO.builder()
+                .id(clinica.getId())
                 .nome(clinica.getNome() != null ? clinica.getNome() : "")
                 .email(clinica.getEmail() != null ? clinica.getEmail() : "")
                 .municipio(clinica.getMunicipio() != null ? clinica.getMunicipio() : "")

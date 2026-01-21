@@ -1,11 +1,13 @@
 package com.guiamedicosback.entity.dto;
 
 import lombok.Builder;
+import lombok.ToString;
 
 import java.util.Map;
 
 @Builder
 public record ClinicaDTO(
+        Long id,
          String nome,
          String endereco,
          String municipio,

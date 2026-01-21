@@ -63,61 +63,12 @@ public class ClinicaController {
         log.info("Adicionando nova clínica: {}", clinicaDTO.nome());
 
         try {
+            log.info("Procedimentos: {} ", clinicaDTO.procedimentos());
             ClinicaDTO createdClinica = clinicaService.addClinica(clinicaDTO);
             log.info("Clínica adicionada com sucesso: {}", createdClinica.nome());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdClinica);
         } catch (Exception e) {
             log.error("Erro ao adicionar clínica: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @Operation(summary = "Deletar clínica por ID", description = "Remove uma clínica específica pelo seu ID")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClinica(@PathVariable Long id) {
-        log.info("Deletando clínica com ID: {}", id);
-        try {
-            clinicaService.deleteClinica(id);
-            log.info("Clínica com ID {} deletada com sucesso", id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            log.error("Erro ao deletar clínica com ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @Operation(summary = "Atualizar clínica por ID", description = "Atualiza os dados de uma clínica específica pelo seu ID")
-    @PutMapping("/{id}")
-    public ResponseEntity<ClinicaDTO> updateClinica(@PathVariable Long id, @RequestBody ClinicaDTO clinicaDTO) {
-        log.info("Atualizando clínica com ID: {}", id);
-        try {
-            ClinicaDTO updatedClinica = clinicaService.updateClinica(id, clinicaDTO);
-            log.info("Clínica com ID {} atualizada com sucesso", id);
-            return ResponseEntity.ok(updatedClinica);
-        } catch (RuntimeException e) {
-            log.warn("Clínica não atualizada com ID: {}", id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            log.error("Erro ao atualizar clínica com ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @Operation(summary = "Buscar clínica por ID", description = "Retorna os detalhes de uma clínica específica pelo seu ID")
-    @GetMapping("/{id}")
-    public ResponseEntity<ClinicaDTO> getClinicaById(@PathVariable Long id) {
-
-        log.info("Buscando clínica com ID: {}", id);
-
-        try {
-            ClinicaDTO clinica = clinicaService.getClinicaById(id);
-            log.info("Clínica encontrada: {}", clinica.nome());
-            return ResponseEntity.ok(clinica);
-        } catch (RuntimeException e) {
-            log.warn("Clínica não encontrada com ID: {}", id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            log.error("Erro ao buscar clínica por ID {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -133,6 +84,60 @@ public class ClinicaController {
             return ResponseEntity.ok(clinicas);
         } catch (Exception e) {
             log.error("Erro ao buscar todas as clínicas: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Deletar clínica por ID", description = "Remove uma clínica específica pelo seu ID")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteClinica(@PathVariable String id) {
+
+        log.info("Deletando clínica com ID: {}", id);
+        Long parseId = Long.parseLong(id);
+        try {
+            clinicaService.deleteClinica(parseId);
+            log.info("Clínica com ID {} deletada com sucesso", id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Erro ao deletar clínica com ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Atualizar clínica por ID", description = "Atualiza os dados de uma clínica específica pelo seu ID")
+    @PutMapping("/{id}")
+    public ResponseEntity<ClinicaDTO> updateClinica(@PathVariable String id, @RequestBody ClinicaDTO clinicaDTO) {
+        log.info("Atualizando clínica com ID: {}", id);
+        Long parseId = Long.parseLong(id);
+        try {
+            ClinicaDTO updatedClinica = clinicaService.updateClinica(parseId, clinicaDTO);
+            log.info("Clínica com ID {} atualizada com sucesso", id);
+            return ResponseEntity.ok(updatedClinica);
+        } catch (RuntimeException e) {
+            log.warn("Clínica não atualizada com ID: {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            log.error("Erro ao atualizar clínica com ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Buscar clínica por ID", description = "Retorna os detalhes de uma clínica específica pelo seu ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<ClinicaDTO> getClinicaById(@PathVariable String id) {
+
+        log.info("Buscando clínica com ID: {}", id);
+        Long parseId = Long.parseLong(id);
+
+        try {
+            ClinicaDTO clinica = clinicaService.getClinicaById(parseId);
+            log.info("Clínica encontrada: {}", clinica.nome());
+            return ResponseEntity.ok(clinica);
+        } catch (RuntimeException e) {
+            log.warn("Clínica não encontrada com ID: {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            log.error("Erro ao buscar clínica por ID {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
