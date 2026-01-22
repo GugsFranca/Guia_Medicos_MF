@@ -1,7 +1,7 @@
-package com.guiamedicosback.controller;
+package com.guiamedicosback.guia.controller;
 
-import com.guiamedicosback.entity.dto.ClinicaDTO;
-import com.guiamedicosback.service.ClinicaService;
+import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
+import com.guiamedicosback.guia.service.ClinicaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

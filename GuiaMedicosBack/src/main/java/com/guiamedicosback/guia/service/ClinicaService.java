@@ -1,6 +1,6 @@
-package com.guiamedicosback.service;
+package com.guiamedicosback.guia.service;
 
-import com.guiamedicosback.entity.dto.ClinicaDTO;
+import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

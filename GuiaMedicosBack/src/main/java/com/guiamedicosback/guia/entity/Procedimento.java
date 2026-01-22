@@ -1,4 +1,4 @@
-package com.guiamedicosback.entity;
+package com.guiamedicosback.guia.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -13,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class Procedimento {
+    @Column(columnDefinition = "TEXT")
     private String nome;
     @Column(columnDefinition = "TEXT")
     private String especializacao; // Ex: "Imagem", "Laboratorial", "Fisioterapia"

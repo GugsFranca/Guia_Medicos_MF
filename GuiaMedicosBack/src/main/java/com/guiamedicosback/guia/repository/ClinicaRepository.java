@@ -1,6 +1,6 @@
-package com.guiamedicosback.repository;
+package com.guiamedicosback.guia.repository;
 
-import com.guiamedicosback.entity.Clinica;
+import com.guiamedicosback.guia.entity.Clinica;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

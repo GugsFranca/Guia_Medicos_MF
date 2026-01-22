@@ -1,4 +1,4 @@
-package com.guiamedicosback.entity;
+package com.guiamedicosback.guia.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

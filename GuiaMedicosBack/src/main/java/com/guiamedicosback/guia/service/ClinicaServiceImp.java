@@ -1,9 +1,9 @@
-package com.guiamedicosback.service;
+package com.guiamedicosback.guia.service;
 
-import com.guiamedicosback.entity.Clinica;
-import com.guiamedicosback.entity.Procedimento;
-import com.guiamedicosback.entity.dto.ClinicaDTO;
-import com.guiamedicosback.repository.ClinicaRepository;
+import com.guiamedicosback.guia.entity.Clinica;
+import com.guiamedicosback.guia.entity.Procedimento;
+import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
+import com.guiamedicosback.guia.repository.ClinicaRepository;
 import jakarta.persistence.criteria.Join;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

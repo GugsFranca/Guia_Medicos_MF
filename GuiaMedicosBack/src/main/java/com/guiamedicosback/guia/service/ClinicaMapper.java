@@ -1,8 +1,8 @@
-package com.guiamedicosback.service;
+package com.guiamedicosback.guia.service;
 
-import com.guiamedicosback.entity.Clinica;
-import com.guiamedicosback.entity.Procedimento;
-import com.guiamedicosback.entity.dto.ClinicaDTO;
+import com.guiamedicosback.guia.entity.Clinica;
+import com.guiamedicosback.guia.entity.Procedimento;
+import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

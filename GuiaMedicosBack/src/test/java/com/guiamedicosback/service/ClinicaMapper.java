@@ -1,8 +1,9 @@
 package com.guiamedicosback.service;
 
-import com.guiamedicosback.entity.Clinica;
-import com.guiamedicosback.entity.Procedimento;
-import com.guiamedicosback.entity.dto.ClinicaDTO;
+import com.guiamedicosback.guia.entity.Clinica;
+import com.guiamedicosback.guia.entity.Procedimento;
+import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
+import com.guiamedicosback.guia.service.ClinicaMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

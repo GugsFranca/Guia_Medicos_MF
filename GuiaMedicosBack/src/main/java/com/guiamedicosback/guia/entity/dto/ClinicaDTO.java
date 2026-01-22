@@ -1,4 +1,4 @@
-package com.guiamedicosback.entity.dto;
+package com.guiamedicosback.guia.entity.dto;
 
 import lombok.Builder;
 import lombok.ToString;
