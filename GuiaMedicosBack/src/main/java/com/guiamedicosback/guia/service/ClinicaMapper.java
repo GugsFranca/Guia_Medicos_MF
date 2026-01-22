@@ -25,13 +25,6 @@ public class ClinicaMapper {
                 .build();
     }
 
-    protected List<ClinicaDTO> toClinicaDTOList(List<Clinica> clinicas) {
-        if (clinicas == null) return null;
-        return clinicas.stream()
-                .map(this::toClinicaDTO)
-                .collect(Collectors.toList());
-    }
-
     protected Clinica toClinica(ClinicaDTO clinicaDTO) {
         if (clinicaDTO == null) return null;
 

@@ -4,9 +4,6 @@ import com.guiamedicosback.guia.entity.Clinica;
 import com.guiamedicosback.guia.entity.Procedimento;
 import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
 import com.guiamedicosback.guia.repository.ClinicaRepository;
-import com.guiamedicosback.guia.service.ClinicaMapper;
-import com.guiamedicosback.guia.service.ClinicaServiceImp;
-import com.guiamedicosback.guia.service.ExcelProcessorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +20,8 @@ import java.io.InputStream;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -292,7 +290,7 @@ class ClinicaServiceImpTest {
 
         // Assert
         Clinica savedClinica = clinicaCaptor.getValue();
-        Procedimento procedimento = savedClinica.getProcedimentos().get(0);
+        Procedimento procedimento = savedClinica.getProcedimentos().getFirst();
 
         // Verificar a ORDEM CORRETA dos parâmetros
         // especializacao deve ser a KEY do map
@@ -308,7 +306,7 @@ class ClinicaServiceImpTest {
         Clinica existingClinica = Clinica.builder()
                 .id(id)
                 .nome("Nome Antigo")
-                .procedimentos(new ArrayList<>(Arrays.asList(
+                .procedimentos(new ArrayList<>(Collections.singletonList(
                         new Procedimento("Antiga", "Procedimento Antigo")
                 )))
                 .build();
@@ -428,7 +426,7 @@ class ClinicaServiceImpTest {
     @Test
     void getClinicas_ShouldReturnListOfDTOs() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll()).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
@@ -438,7 +436,7 @@ class ClinicaServiceImpTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(clinicaDTO, result.get(0));
+        assertEquals(clinicaDTO, result.getFirst());
         verify(clinicaRepository, times(1)).findAll();
         verify(clinicaMapper, times(1)).toClinicaDTO(clinica);
     }
@@ -459,7 +457,7 @@ class ClinicaServiceImpTest {
     @Test
     void searchClinicas_WithAllEmptyParams_ShouldReturnAllClinicas() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll()).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
@@ -476,7 +474,7 @@ class ClinicaServiceImpTest {
     @Test
     void searchClinicas_WithOnlyNome_ShouldApplySpecification() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll(any(Specification.class))).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
@@ -493,7 +491,7 @@ class ClinicaServiceImpTest {
     @Test
     void searchClinicas_WithMultipleParams_ShouldApplyAllSpecifications() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll(any(Specification.class))).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
@@ -510,7 +508,7 @@ class ClinicaServiceImpTest {
     @Test
     void searchClinicas_WithProcedimento_ShouldJoinProcedimentos() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll(specificationCaptor.capture())).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
@@ -537,7 +535,7 @@ class ClinicaServiceImpTest {
     @Test
     void searchClinicas_WithNullParams_ShouldTreatAsEmpty() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll()).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
@@ -554,7 +552,7 @@ class ClinicaServiceImpTest {
     @Test
     void searchClinicas_WithMixedNullAndEmpty_ShouldApplyOnlyNonEmpty() {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(clinicaRepository.findAll(any(Specification.class))).thenReturn(clinicas);
         when(clinicaMapper.toClinicaDTO(clinica)).thenReturn(clinicaDTO);
 
