@@ -1,4 +1,4 @@
-package com.guiamedicosback.service;
+package com.guiamedicosback.guia.service;
 
 import com.guiamedicosback.guia.entity.Clinica;
 import com.guiamedicosback.guia.entity.Procedimento;
@@ -86,7 +86,7 @@ class ClinicaServiceImpTest {
     @Test
     void addClinicaFromFile_WithValidFile_ShouldDeleteAllAndSaveAll() throws IOException {
         // Arrange
-        List<Clinica> clinicas = Arrays.asList(clinica);
+        List<Clinica> clinicas = Collections.singletonList(clinica);
         when(processorService.processarExcel(multipartFile)).thenReturn(clinicas);
         when(clinicaRepository.saveAll(clinicas)).thenReturn(clinicas);
 

@@ -1,4 +1,4 @@
-package com.guiamedicosback.service;
+package com.guiamedicosback.guia.service;
 
 import com.guiamedicosback.guia.entity.Clinica;
 import com.guiamedicosback.guia.entity.Procedimento;
@@ -47,6 +47,7 @@ class ClinicaMapperTest {
         procedimentosMap.put("Laboratorial", "Exame de Sangue");
 
         clinicaDTO = new ClinicaDTO(
+        1L,
                 "Clínica Teste",
                 "Rua Teste, 123",
                 "São Paulo",
@@ -116,6 +117,7 @@ class ClinicaMapperTest {
     void testToClinica_WithEmptyProcedimentos_ShouldMapEmptyList() {
         // Configuração
         clinicaDTO = new ClinicaDTO(
+                1L,
                 "Clínica Teste",
                 "Rua Teste, 123",
                 "São Paulo",
@@ -151,6 +153,7 @@ class ClinicaMapperTest {
     void testToClinica_WithNullValues_ShouldHandleGracefully() {
         // Configuração
         clinicaDTO = new ClinicaDTO(
+                1L,
                 null,
                 null,
                 null,

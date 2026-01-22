@@ -40,15 +40,6 @@ public class JwtTokenUtil {
 
     }
 
-    public String generateRefreshToken(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime * 1000))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token).getSubject();
     }
@@ -68,11 +59,6 @@ public class JwtTokenUtil {
     public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
-    }
-
-    public Boolean validateToken(String token, String username) {
-        final String tokenUsername = getUsernameFromToken(token);
-        return (tokenUsername.equals(username) && !isTokenExpired(token));
     }
 
     public Boolean validateToken(String token) {
