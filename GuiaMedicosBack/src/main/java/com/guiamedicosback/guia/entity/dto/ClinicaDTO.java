@@ -2,7 +2,7 @@ package com.guiamedicosback.guia.entity.dto;
 
 import lombok.Builder;
 
-import java.util.Map;
+import java.util.List;
 
 @Builder
 public record ClinicaDTO(
@@ -12,7 +12,7 @@ public record ClinicaDTO(
         String municipio,
         String telefone,
         String email,
-        Map<String, String> procedimentos
+        List<GrupoDTO> grupos
 
 ) {
 }

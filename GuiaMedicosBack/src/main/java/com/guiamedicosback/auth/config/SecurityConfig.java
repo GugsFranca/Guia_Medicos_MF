@@ -28,29 +28,32 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http){
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/clinicas/**", "/api/clinicas").permitAll()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // 1. ACTIVATE CORS (This is what fixes the "No Access-Control-Allow-Origin" error)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                        // Bloqueia POST, PUT, DELETE de /api/clinicas/** - requer autenticação
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authz -> authz
+                        // 2. FIXED PATH: Added "/api" prefix to match your frontend call
+                        .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/clinicas/**", "/api/clinicas").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/clinicas/**", "/api/clinicas").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/clinicas/**", "/api/clinicas").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/clinicas/**", "/api/clinicas").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/clinicas/**", "/api/clinicas").authenticated()
-                        .anyRequest()
-                        .authenticated())
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080", "http://192.168.1.115:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // Importante para cookies

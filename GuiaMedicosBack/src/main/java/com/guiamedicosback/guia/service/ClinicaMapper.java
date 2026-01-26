@@ -1,57 +1,94 @@
 package com.guiamedicosback.guia.service;
 
 import com.guiamedicosback.guia.entity.Clinica;
-import com.guiamedicosback.guia.entity.Procedimento;
+import com.guiamedicosback.guia.entity.Grupo;
+import com.guiamedicosback.guia.entity.Subgrupo;
 import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
-import org.springframework.stereotype.Service;
+import com.guiamedicosback.guia.entity.dto.GrupoDTO;
+import com.guiamedicosback.guia.entity.dto.SubgrupoDTO;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class ClinicaMapper {
 
-    protected ClinicaDTO toClinicaDTO(Clinica clinica) {
-        if (clinica == null) return null;
+    public ClinicaDTO toClinicaDTO(Clinica clinica) {
+        if (clinica == null) {
+            return null;
+        }
+
         return ClinicaDTO.builder()
                 .id(clinica.getId())
-                .nome(clinica.getNome() != null ? clinica.getNome() : "")
-                .email(clinica.getEmail() != null ? clinica.getEmail() : "")
-                .municipio(clinica.getMunicipio() != null ? clinica.getMunicipio() : "")
-                .telefone(clinica.getTelefone() != null ? clinica.getTelefone() : "")
-                .endereco(clinica.getEndereco() != null ? clinica.getEndereco() : "")
-                .procedimentos(mapProcedimentos(clinica) != null ? mapProcedimentos(clinica) : Map.of())
+                .nome(clinica.getNome())
+                .endereco(clinica.getEndereco())
+                .municipio(clinica.getMunicipio())
+                .telefone(clinica.getTelefone())
+                .email(clinica.getEmail())
+                .grupos(clinica.getGrupos().stream()
+                        .map(this::toGrupoDTO)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
-    protected Clinica toClinica(ClinicaDTO clinicaDTO) {
-        if (clinicaDTO == null) return null;
+    public GrupoDTO toGrupoDTO(Grupo grupo) {
+        if (grupo == null) {
+            return null;
+        }
 
-        return Clinica.builder()
-                .nome(clinicaDTO.nome() != null ? clinicaDTO.nome() : "")
-                .email(clinicaDTO.email() != null ? clinicaDTO.email() : "")
-                .municipio(clinicaDTO.municipio() != null ? clinicaDTO.municipio() : "")
-                .telefone(clinicaDTO.telefone() != null ? clinicaDTO.telefone() : "")
-                .endereco(clinicaDTO.endereco() != null ? clinicaDTO.endereco() : "")
-                .procedimentos(mapProcedimentos(clinicaDTO))
+        return GrupoDTO.builder()
+                .nome(grupo.getNome())
+                .subgrupos(grupo.getSubgrupos().stream()
+                .map(this::toSubgrupoDTO)
+                .collect(Collectors.toList())).build();
+    }
+
+    public SubgrupoDTO toSubgrupoDTO(Subgrupo subgrupo) {
+        if (subgrupo == null) {
+            return null;
+        }
+
+        return SubgrupoDTO.builder()
+                .nome(subgrupo.getNome())
+                .procedimentos(subgrupo.getProcedimentos())
                 .build();
     }
-    private Map<String, String> mapProcedimentos(Clinica clinica) {
-        if (clinica == null) return null;
-        if (clinica.getProcedimentos() == null) return null;
-        return clinica.getProcedimentos().stream()
-                .collect(Collectors.toMap(
-                        Procedimento::getEspecializacao,
-                        Procedimento::getNome,
-                        (existing, replacement) -> existing + ", " + replacement
-                ));
-    }
-    private List<Procedimento> mapProcedimentos(ClinicaDTO clinicaDTO) {
-        if (clinicaDTO == null) return null;
-        if (clinicaDTO.procedimentos() == null) return null;
-        return clinicaDTO.procedimentos().entrySet().stream()
-                .map(entry -> new Procedimento(entry.getKey(), entry.getValue()))
-                .toList();
+
+    public Clinica toClinica(ClinicaDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Clinica clinica = new Clinica();
+        clinica.setId(dto.id());
+        clinica.setNome(dto.nome());
+        clinica.setEndereco(dto.endereco());
+        clinica.setMunicipio(dto.municipio());
+        clinica.setTelefone(dto.telefone());
+        clinica.setEmail(dto.email());
+
+        // Mapear grupos
+        if (dto.grupos() != null) {
+            for (GrupoDTO grupoDTO : dto.grupos()) {
+                Grupo grupo = new Grupo();
+                grupo.setNome(grupoDTO.nome());
+                grupo.setClinica(clinica);
+
+                // Mapear subgrupos
+                if (grupoDTO.subgrupos() != null) {
+                    for (SubgrupoDTO subgrupoDTO : grupoDTO.subgrupos()) {
+                        Subgrupo subgrupo = new Subgrupo();
+                        subgrupo.setNome(subgrupoDTO.nome());
+                        subgrupo.setProcedimentos(subgrupoDTO.procedimentos());
+                        subgrupo.setGrupo(grupo);
+                        grupo.getSubgrupos().add(subgrupo);
+                    }
+                }
+
+                clinica.getGrupos().add(grupo);
+            }
+        }
+
+        return clinica;
     }
 }

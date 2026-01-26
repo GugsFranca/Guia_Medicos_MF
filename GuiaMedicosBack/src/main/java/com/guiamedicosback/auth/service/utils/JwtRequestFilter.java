@@ -32,8 +32,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain chain) throws ServletException, IOException {
 
-        String jwt = getCookieValue(request);
+        String jwt = null;
         String username = null;
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        }
+
+// 2️⃣ fallback para cookie
+        if (jwt == null) {
+            jwt = getCookieValue(request);
+        }
 
         if (jwt != null) {
             try {

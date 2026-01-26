@@ -4,6 +4,7 @@ import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
 import com.guiamedicosback.guia.service.ClinicaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -59,11 +60,11 @@ public class ClinicaController {
 
     @Operation(summary = "Adicionar nova clínica", description = "Adiciona uma nova clínica ao sistema")
     @PostMapping
-    public ResponseEntity<ClinicaDTO> addClinica(@RequestBody ClinicaDTO clinicaDTO) {
+    public ResponseEntity<ClinicaDTO> addClinica(@RequestBody @Valid ClinicaDTO clinicaDTO) {
         log.info("Adicionando nova clínica: {}", clinicaDTO.nome());
 
         try {
-            log.info("Procedimentos: {} ", clinicaDTO.procedimentos());
+            log.info("Procedimentos: {} ", clinicaDTO.grupos());
             ClinicaDTO createdClinica = clinicaService.addClinica(clinicaDTO);
             log.info("Clínica adicionada com sucesso: {}", createdClinica.nome());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdClinica);
@@ -80,7 +81,6 @@ public class ClinicaController {
 
         try {
             List<ClinicaDTO> clinicas = clinicaService.getClinicas();
-            log.info("Encontradas {} clínicas", clinicas.size());
             return ResponseEntity.ok(clinicas);
         } catch (Exception e) {
             log.error("Erro ao buscar todas as clínicas: {}", e.getMessage(), e);
@@ -106,8 +106,8 @@ public class ClinicaController {
 
     @Operation(summary = "Atualizar clínica por ID", description = "Atualiza os dados de uma clínica específica pelo seu ID")
     @PutMapping("/{id}")
-    public ResponseEntity<ClinicaDTO> updateClinica(@PathVariable String id, @RequestBody ClinicaDTO clinicaDTO) {
-        log.info("Atualizando clínica com ID: {}", id);
+    public ResponseEntity<ClinicaDTO> updateClinica(@PathVariable String id, @RequestBody @Valid ClinicaDTO clinicaDTO) {
+
         Long parseId = Long.parseLong(id);
         try {
             ClinicaDTO updatedClinica = clinicaService.updateClinica(parseId, clinicaDTO);
@@ -144,21 +144,20 @@ public class ClinicaController {
 
     @Operation(summary = "Busca combinada de clínicas", description = "Retorna clínicas filtradas por múltiplos critérios (todos os parâmetros são opcionais)")
     @GetMapping("/busca")
-    public ResponseEntity<List<ClinicaDTO>> searchClinicas(@RequestParam(required = false) String nome,
+    public ResponseEntity<List<ClinicaDTO>> searchClinicas(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String municipio,
+            @RequestParam(required = false) String endereco,
+            @RequestParam(required = false) String procedimento,
+            @RequestParam(required = false) String grupo,
+            @RequestParam(required = false) String subgrupo) {
 
-                                                           @RequestParam(required = false) String municipio,
 
-                                                           @RequestParam(required = false) String endereco,
-
-                                                           @RequestParam(required = false) String procedimento,
-
-                                                           @RequestParam(required = false) String especializacao) {
-
-        log.info("Buscando clínicas com critérios - Nome: {}, Município: {}, Endereço: {}, Procedimento: {}, Especialização: {}", nome, municipio, endereco, procedimento, especializacao);
+        log.info("Buscando clínicas com critérios - Nome: {}, Município: {}, Endereço: {}, Procedimento: {}, Grupo: {}, Subgrupo {}", nome, municipio, endereco, procedimento, grupo,subgrupo );
 
         try {
-            List<ClinicaDTO> clinicas = clinicaService.searchClinicas(nome, municipio, endereco, procedimento, especializacao);
-
+            List<ClinicaDTO> clinicas = clinicaService.searchClinicas(
+                    nome, municipio, endereco, procedimento, grupo, subgrupo);
             log.info("Encontradas {} clínicas com os critérios especificados", clinicas.size());
             return ResponseEntity.ok(clinicas);
 
