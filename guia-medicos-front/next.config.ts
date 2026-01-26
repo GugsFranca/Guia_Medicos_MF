@@ -1,8 +1,17 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  allowedDevOrigins: [
+    'local-origin.dev',
+    'http://192.168.1.115:3000',
+    '192.168.1.115',
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
+    '*.local-origin.dev',
+  ],
 };
 
 export default nextConfig;

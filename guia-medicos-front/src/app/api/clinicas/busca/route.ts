@@ -6,8 +6,9 @@ export async function GET(req: Request) {
     try {
 
         const body = await req.json();
+        const cookieStore = await cookies();
+        const token = cookieStore.get("auth_token")?.value;
 
-        // Converte o JSON para query string
         const queryParams = new URLSearchParams();
         Object.entries(body).forEach(([key, value]) => {
             if (value) queryParams.append(key, String(value));
@@ -17,7 +18,10 @@ export async function GET(req: Request) {
         const url = queryString ? `/busca?${queryString}` : '/busca';
 
         return await proxyFetch(url, {
-            method: "GET", // Agora é GET
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
         });
     } catch (err) {
         console.error("api/clinica/busca POST proxy error:", err);

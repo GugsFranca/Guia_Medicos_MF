@@ -8,17 +8,17 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import type { Clinica } from "../types";
 import { ColorModeButton } from "../ui/color-mode";
-export const ClinicasList: React.FC = () => {
 
+export const ClinicasList: React.FC = () => {
     const [mounted, setMounted] = useState(false);
     const [clinicas, setClinicas] = useState<Clinica[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [search, setSearch] = useState("");
-    const [especializacao, setEspecializacao] = useState<string[]>([]);
-    const [procedimento, setProcedimento] = useState(""); // Novo estado para o segundo select
-    const [municipio, setMunicipio] = useState<string[]>([]);
-
+    const [grupoSelecionado, setGrupoSelecionado] = useState<string>("");
+    const [subgrupoSelecionado, setSubgrupoSelecionado] = useState<string>("");
+    const [procedimentoSelecionado, setProcedimentoSelecionado] = useState<string>("");
+    const [municipio, setMunicipio] = useState<string>("");
 
     useEffect(() => {
         setMounted(true);
@@ -34,89 +34,197 @@ export const ClinicasList: React.FC = () => {
         loadClinicas();
     }, []);
 
-    // 1. Gera a lista de especialidades únicas
-    const especializacoesCollection = useMemo(() => {
+    // Extrai todos os grupos únicos
+    const gruposCollection = useMemo(() => {
         const set = new Set<string>();
-        clinicas.forEach(c => c.procedimentos && Object.keys(c.procedimentos).forEach(e => set.add(e)));
+        clinicas.forEach(c =>
+            c.grupos?.forEach(g => set.add(g.nome))
+        );
         return Array.from(set).sort();
     }, [clinicas]);
 
-    // 2. 🔹 Lógica para extrair procedimentos da especialidade selecionada
-    const procedimentosDisponiveis = useMemo(() => {
-        if (especializacao.length === 0) return [];
-        const espSelecionada = especializacao[0];
-        const todosProcedimentos = new Set<string>();
+    // Extrai subgrupos baseados no grupo selecionado
+    const subgruposCollection = useMemo(() => {
+        if (!grupoSelecionado) return [];
+        const set = new Set<string>();
 
         clinicas.forEach(c => {
-            const procString = c.procedimentos[espSelecionada];
-            if (procString) {
-                // Separa por vírgula, remove espaços e adiciona ao Set
-                procString.split(",").forEach(p => todosProcedimentos.add(p.trim()));
-            }
+            c.grupos?.forEach(g => {
+                if (g.nome === grupoSelecionado) {
+                    g.subgrupos?.forEach(s => set.add(s.nome));
+                }
+            });
         });
 
-        return Array.from(todosProcedimentos).sort();
-    }, [clinicas, especializacao]);
+        return Array.from(set).sort();
+    }, [clinicas, grupoSelecionado]);
 
+    // Extrai procedimentos baseados no grupo e subgrupo selecionados
+    const procedimentosCollection = useMemo(() => {
+        if (!grupoSelecionado) return [];
+
+        const set = new Set<string>();
+
+        clinicas.forEach(c => {
+            c.grupos?.forEach(g => {
+                if (g.nome === grupoSelecionado) {
+                    g.subgrupos?.forEach(s => {
+                        // Se há subgrupo selecionado, só pega procedimentos desse subgrupo
+                        if (!subgrupoSelecionado || s.nome === subgrupoSelecionado) {
+                            s.procedimentos?.forEach(p => set.add(p));
+                        }
+                    });
+                }
+            });
+        });
+
+        return Array.from(set).sort();
+    }, [clinicas, grupoSelecionado, subgrupoSelecionado]);
+
+    // Extrai municípios únicos
     const municipiosCollection = useMemo(() => {
         return Array.from(new Set(clinicas.map(c => c.municipio))).sort();
     }, [clinicas]);
 
-    const handleClearFilters = () => {
-        setSearch("");
-        setEspecializacao([]);
-        setProcedimento("");
-        setMunicipio([]);
+    // Função para formatar procedimentos para exibição
+    const formatarProcedimentos = (clinica: Clinica) => {
+        const procedimentosPorGrupo: Record<string, string> = {};
+
+        clinica.grupos?.forEach(grupo => {
+            const procedimentosDoGrupo: string[] = [];
+
+            grupo.subgrupos?.forEach(subgrupo => {
+                procedimentosDoGrupo.push(...(subgrupo.procedimentos || []));
+            });
+
+            if (procedimentosDoGrupo.length > 0) {
+                // Limita a 5 procedimentos por grupo para não ficar muito extenso
+                const procedimentosExibidos = procedimentosDoGrupo.slice(0, 5);
+                const sufixo = procedimentosDoGrupo.length > 5 ? '...' : '';
+                procedimentosPorGrupo[grupo.nome] = procedimentosExibidos.join(', ') + sufixo;
+            }
+        });
+
+        return procedimentosPorGrupo;
     };
 
-    const hasFilters = search !== "" || especializacao.length > 0 || municipio.length > 0 || procedimento !== "";
+    // Conta total de procedimentos por clínica
+    const contarProcedimentos = (clinica: Clinica) => {
+        let total = 0;
+        let gruposCount = 0;
+        let subgruposCount = 0;
 
-    // 3. 🔹 Filtro atualizado
+        clinica.grupos?.forEach(grupo => {
+            gruposCount++;
+            grupo.subgrupos?.forEach(subgrupo => {
+                subgruposCount++;
+                total += subgrupo.procedimentos?.length || 0;
+            });
+        });
+
+        return { total, gruposCount, subgruposCount };
+    };
+
+    const handleClearFilters = () => {
+        setSearch("");
+        setGrupoSelecionado("");
+        setSubgrupoSelecionado("");
+        setProcedimentoSelecionado("");
+        setMunicipio("");
+    };
+
+    const hasFilters = search !== "" || grupoSelecionado !== "" ||
+        subgrupoSelecionado !== "" || procedimentoSelecionado !== "" ||
+        municipio !== "";
+
+    // Filtro atualizado para a nova estrutura
     const filteredClinicas = useMemo(() => {
         return clinicas.filter(c => {
-            const matchText = c.nome.toLowerCase().includes(search.toLowerCase()) ||
+            // Filtro por texto (busca em todos os campos)
+            const matchText = search === "" ||
+                c.nome.toLowerCase().includes(search.toLowerCase()) ||
                 c.endereco.toLowerCase().includes(search.toLowerCase()) ||
                 c.municipio.toLowerCase().includes(search.toLowerCase()) ||
                 c.email.toLowerCase().includes(search.toLowerCase()) ||
                 c.telefone.toLowerCase().includes(search.toLowerCase()) ||
-                c.procedimentos && Object.values(c.procedimentos).some(proc =>
-                    proc.toLowerCase().includes(search.toLowerCase())
-                );
+                // Busca nos procedimentos também
+                (() => {
+                    let encontrouProcedimento = false;
+                    c.grupos?.forEach(g => {
+                        g.subgrupos?.forEach(s => {
+                            s.procedimentos?.forEach(p => {
+                                if (p.toLowerCase().includes(search.toLowerCase())) {
+                                    encontrouProcedimento = true;
+                                }
+                            });
+                        });
+                    });
+                    return encontrouProcedimento;
+                })();
 
-            const espSelecionada = especializacao[0];
-            const matchEsp = !espSelecionada || !!c.procedimentos[espSelecionada];
+            // Filtro por município
+            const matchMunicipio = municipio === "" || c.municipio === municipio;
 
-            // Filtra pelo procedimento dentro da string separada por vírgulas
-            const matchProc = !procedimento ||
-                (c.procedimentos[espSelecionada]?.toLowerCase().includes(procedimento.toLowerCase()));
+            // Filtro por grupo
+            let matchGrupo = true;
+            if (grupoSelecionado) {
+                matchGrupo = c.grupos?.some(g => g.nome === grupoSelecionado) || false;
+            }
 
-            const matchMun = municipio.length === 0 || municipio.some(m => c.municipio === m);
+            // Filtro por subgrupo (só aplica se grupo também foi selecionado)
+            let matchSubgrupo = true;
+            if (grupoSelecionado && subgrupoSelecionado) {
+                matchSubgrupo = false;
+                c.grupos?.forEach(g => {
+                    if (g.nome === grupoSelecionado) {
+                        if (g.subgrupos?.some(s => s.nome === subgrupoSelecionado)) {
+                            matchSubgrupo = true;
+                        }
+                    }
+                });
+            }
 
-            return matchText && matchEsp && matchProc && matchMun;
+            // Filtro por procedimento selecionado
+            let matchProcedimento = true;
+            if (procedimentoSelecionado) {
+                matchProcedimento = false;
+                c.grupos?.forEach(g => {
+                    // Se há grupo selecionado, verifica apenas esse grupo
+                    if (grupoSelecionado && g.nome !== grupoSelecionado) return;
+
+                    g.subgrupos?.forEach(s => {
+                        // Se há subgrupo selecionado, verifica apenas esse subgrupo
+                        if (subgrupoSelecionado && s.nome !== subgrupoSelecionado) return;
+
+                        if (s.procedimentos?.some(p => p === procedimentoSelecionado)) {
+                            matchProcedimento = true;
+                        }
+                    });
+                });
+            }
+
+            return matchText && matchMunicipio && matchGrupo && matchSubgrupo && matchProcedimento;
         });
-    }, [clinicas, search, especializacao, procedimento, municipio]);
+    }, [clinicas, search, grupoSelecionado, subgrupoSelecionado, procedimentoSelecionado, municipio]);
 
     if (!mounted) return null;
 
     return (
         <Box
             maxW="container.lg"
-            mx={{ base: "10px", md: "auto", lg: "auto" }} // Margem pequena no celular, auto no desktop
-            my={{ base: 4, md: 12 }} // Espaçamento vertical adaptável
-            p={{ base: 4, md: 30 }} // Padding interno menor no celular
+            mx={{ base: "10px", md: "auto", lg: "auto" }}
+            my={{ base: 4, md: 12 }}
+            p={{ base: 4, md: 30 }}
             borderWidth="1px"
             borderRadius="lg"
             shadow="md"
-            // bg="bg.panel" garante que o fundo mude no dark mode
             bg="bg.panel"
-            // borderColor mudo para não ficar muito forte no dark mode
             borderColor="border.emphasized"
             width={{ base: "auto", md: "auto", lg: "1400px" }}
         >
             <Heading size={{ base: "lg", md: "xl" }} mb={6} textAlign="center" color="fg.default">
                 Carteira de Serviços
                 <ColorModeButton />
-
             </Heading>
 
             <Stack gap={4} mb={8}>
@@ -125,38 +233,56 @@ export const ClinicasList: React.FC = () => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     size={{ base: "md", md: "lg" }}
-                    // bg="bg.muted" ajuda a destacar o input do fundo
                     bg="bg.muted"
                 />
 
                 <Stack direction={{ base: "column", md: "row" }} gap={4} width="full">
-                    {/* Select de Especialização */}
+                    {/* Select de Grupo */}
                     <NativeSelect.Root width="full">
                         <NativeSelect.Field
-                            placeholder="Especialização"
-                            value={especializacao[0] || ""}
+                            placeholder="Grupo"
+                            value={grupoSelecionado}
                             onChange={(e) => {
-                                const val = e.currentTarget.value;
-                                setEspecializacao(val ? [val] : []);
-                                setProcedimento(""); // Reseta o procedimento ao mudar a especialidade
+                                setGrupoSelecionado(e.currentTarget.value);
+                                setSubgrupoSelecionado(""); // Reseta subgrupo
+                                setProcedimentoSelecionado(""); // Reseta procedimento
                             }}
                         >
-                            {especializacoesCollection.map((esp) => (
-                                <option key={esp} value={esp}>{esp}</option>
+                            {gruposCollection.map((grupo) => (
+                                <option key={grupo} value={grupo}>{grupo}</option>
                             ))}
                         </NativeSelect.Field>
                         <NativeSelect.Indicator />
                     </NativeSelect.Root>
 
-                    {/* 🔹 Segundo Select: Só aparece se houver procedimentos para a especialidade */}
-                    {procedimentosDisponiveis.length > 1 && (
+                    {/* Select de Subgrupo (aparece quando grupo for selecionado) */}
+                    {grupoSelecionado && subgruposCollection.length > 0 && (
                         <NativeSelect.Root width="full">
                             <NativeSelect.Field
-                                placeholder="Filtrar por Procedimento"
-                                value={procedimento}
-                                onChange={(e) => setProcedimento(e.currentTarget.value)}
+                                placeholder="Subgrupo"
+                                value={subgrupoSelecionado}
+                                onChange={(e) => {
+                                    setSubgrupoSelecionado(e.currentTarget.value);
+                                    setProcedimentoSelecionado(""); // Reseta procedimento
+                                }}
                             >
-                                {procedimentosDisponiveis.map((proc) => (
+                                {subgruposCollection.map((subgrupo) => (
+                                    <option key={subgrupo} value={subgrupo}>{subgrupo}</option>
+                                ))}
+                            </NativeSelect.Field>
+                            <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                    )}
+
+                    {/* Select de Procedimento (aparece quando grupo for selecionado) */}
+                    {grupoSelecionado && procedimentosCollection.length > 0 && (
+                        <NativeSelect.Root width="full">
+                            <NativeSelect.Field
+                                placeholder="Procedimento"
+                                value={procedimentoSelecionado}
+                                onChange={(e) => setProcedimentoSelecionado(e.currentTarget.value)}
+                            >
+                                {procedimentosCollection.map((proc) => (
                                     <option key={proc} value={proc}>{proc}</option>
                                 ))}
                             </NativeSelect.Field>
@@ -164,14 +290,22 @@ export const ClinicasList: React.FC = () => {
                         </NativeSelect.Root>
                     )}
 
+                    {/* Input de texto para procedimento se nenhum grupo selecionado */}
+                    {!grupoSelecionado && (
+                        <Input
+                            placeholder="Buscar procedimento..."
+                            value={procedimentoSelecionado}
+                            onChange={(e) => setProcedimentoSelecionado(e.target.value)}
+                            size={{ base: "md", md: "lg" }}
+                            bg="bg.muted"
+                        />
+                    )}
+
                     <NativeSelect.Root width="full">
                         <NativeSelect.Field
                             placeholder="Município"
-                            value={municipio[0] || ""}
-                            onChange={(e) => {
-                                const val = e.currentTarget.value;
-                                setMunicipio(val ? [val] : []);
-                            }}
+                            value={municipio}
+                            onChange={(e) => setMunicipio(e.currentTarget.value)}
                         >
                             {municipiosCollection.map((m) => (
                                 <option key={m} value={m}>{m}</option>
@@ -185,7 +319,7 @@ export const ClinicasList: React.FC = () => {
                             variant="subtle"
                             colorPalette="red"
                             onClick={handleClearFilters}
-                            width={{ base: "full", md: "auto" }} // Botão ocupa tudo no celular
+                            width={{ base: "full", md: "auto" }}
                         >
                             Limpar
                         </Button>
@@ -197,30 +331,32 @@ export const ClinicasList: React.FC = () => {
                 <Stack align="center" py={10}><Spinner size="xl" /></Stack>
             ) : (
                 <Stack gap={4}>
-                    {filteredClinicas.map((c, i) => (
-                        <Card.Root key={i} variant="elevated">
-                            <Card.Body p={{ base: 4, md: 6 }}>
-                                {/* color="teal.fg" ou "green.fg" funciona bem nos dois modos */}
-                                <Heading size="md" color="teal.fg" mb={2}>{c.nome}</Heading>
-                                <Text fontSize="sm" color="fg.muted">{c.endereco}</Text>
-                                <Separator my={2} />
-                                <Text fontSize="sm" color="fg.default"><strong>Município:</strong> {c.municipio}</Text>
-                                {c.telefone && <Text fontSize="sm" color="fg.default"><strong>Telefone:</strong> {c.telefone}</Text>}
-                                {c.email && <Text fontSize="sm" color="fg.default"><strong>Email:</strong> {c.email}</Text>}
-                                <Box mt={3}>
-                                    {/* <Text fontWeight="bold">Procedimentos:</Text>
-                                    {Object.entries(c.procedimentos).map(([esp, proc]) => (
-                                        <Text key={esp} fontSize="sm">
-                                            <strong>{esp}:</strong> {proc}
-                                        </Text>
-                                    ))} */}
-                                </Box>
-                            </Card.Body>
-                        </Card.Root>
-                    ))}
+                    {filteredClinicas.map((c, i) => {
+
+                        return (
+                            <Card.Root key={i} variant="elevated">
+                                <Button flex={"content"} textAlign={"left"} >
+
+                                    <Card.Body p={{ base: 4, md: 6 }}>
+                                        {/* color="teal.fg" ou "green.fg" funciona bem nos dois modos */}
+                                        <Heading size="md" color="teal.fg" mb={2}>{c.nome}</Heading>
+                                        <Text fontSize="sm" color="fg.muted">{c.endereco}</Text>
+                                        <Separator my={2} />
+                                        <Text fontSize="sm" color="fg.default"><strong>Município:</strong> {c.municipio}</Text>
+                                        {c.telefone && <Text fontSize="sm" color="fg.default"><strong>Telefone:</strong> {c.telefone}</Text>}
+                                        {c.email && <Text fontSize="sm" color="fg.default"><strong>Email:</strong> {c.email}</Text>}
+
+                                    </Card.Body>
+                                </Button>
+
+                            </Card.Root>
+                        );
+                    })}
 
                     {!loading && filteredClinicas.length === 0 && (
-                        <Text textAlign="center" py={10} color="fg.subtle">Nenhum resultado encontrado.</Text>
+                        <Text textAlign="center" py={10} color="fg.subtle">
+                            Nenhum resultado encontrado.
+                        </Text>
                     )}
                 </Stack>
             )}
