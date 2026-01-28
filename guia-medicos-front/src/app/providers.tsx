@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes";
 
 
 const system = createSystem(defaultConfig, {
-    preflight: false, // ← ISSO resolve o problema
+    preflight: false,
 });
 
 export function Providers({ children }: { children: React.ReactNode }) {

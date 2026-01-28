@@ -171,7 +171,6 @@ export const ClinicasList: React.FC = () => {
             borderColor="border.emphasized"
             width="100%"
             boxSizing="border-box"
-            // aumenta fonte base para preservar tamanhos maiores onde não há override
             fontSize={{ base: "md", md: "lg" }}
         >
             <Flex justifyContent="space-between" alignItems="center" mb={6} wrap="wrap" gap={3}>
@@ -203,7 +202,7 @@ export const ClinicasList: React.FC = () => {
                                 value={subgrupoSelecionado}
                                 onChange={(e) => {
                                     setSubgrupoSelecionado(e.currentTarget.value);
-                                    setProcedimentoSelecionado(""); // Reseta procedimento ao mudar subgrupo
+                                    setProcedimentoSelecionado("");
                                 }}
                                 cursor="pointer"
                             >
@@ -215,7 +214,6 @@ export const ClinicasList: React.FC = () => {
                         </NativeSelect.Root>
                     </Box>
 
-                    {/* Select de Procedimento (aparece quando grupo for selecionado) */}
                     {subgrupoSelecionado && procedimentosCollection.length > 0 && (
                         <Box flex={{ base: "1 1 100%", sm: "1 1 200px" }} minWidth="150px">
                             <NativeSelect.Root width="100%">

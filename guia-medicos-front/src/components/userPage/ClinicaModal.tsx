@@ -30,7 +30,6 @@ export const ClinicaModal: React.FC<ClinicaModalProps> = ({
 
     return (
         <Portal>
-            {/* Overlay */}
             <Box
                 position="fixed"
                 top="0"
@@ -45,7 +44,6 @@ export const ClinicaModal: React.FC<ClinicaModalProps> = ({
                 onClick={onClose}
                 p={3}
             >
-                {/* Modal */}
                 <Box
                     bg="bg.panel"
                     width={modalSize}
