@@ -45,7 +45,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ clinicaI
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ clinicaId: number }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ clinicaId: string }> }) {
     try {
 
         const { clinicaId } = await params;

@@ -15,8 +15,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body
-      >
+      <body>
+        <link rel="icon" href="/logo.svg" />
         <Providers>
           {children}
         </Providers>

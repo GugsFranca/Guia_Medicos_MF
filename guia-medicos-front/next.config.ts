@@ -5,11 +5,11 @@ const nextConfig = {
       fullUrl: true,
     },
   },
+  output: 'standalone',
   allowedDevOrigins: [
-    'local-origin.dev',
-    'http://192.168.1.115:3000',
-    '192.168.1.115',
-
+    'localhost:3000',
+    'http://192.168.1.184:3000',
+    '192.168.1.184',
     '*.local-origin.dev',
   ],
 };

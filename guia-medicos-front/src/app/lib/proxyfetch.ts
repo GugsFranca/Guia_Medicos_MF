@@ -9,7 +9,6 @@ export async function proxyFetch(path: string, init?: RequestInit) {
             credentials: "include",
         });
 
-        // 204 não tem body
         if (res.status === 204) {
             return new NextResponse(null, { status: 204 });
         }
@@ -23,7 +22,6 @@ export async function proxyFetch(path: string, init?: RequestInit) {
             },
         });
 
-        // 🔥 REPASSAR COOKIES DO BACKEND
         const setCookie = res.headers.get("set-cookie");
         if (setCookie) {
             nextRes.headers.set("set-cookie", setCookie);

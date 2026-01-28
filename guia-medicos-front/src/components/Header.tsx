@@ -2,7 +2,7 @@ export default function Header() {
 
     return (
         <div>
-            <header className="p-2 flex justify-center border-b-2 border-b-gray-600 shadow-sm ">
+            <header className="p-2 flex justify-center border-b border-b-gray-300 shadow-md ">
 
                 <nav>
                     <ul className="flex space-x-4 w-32">
