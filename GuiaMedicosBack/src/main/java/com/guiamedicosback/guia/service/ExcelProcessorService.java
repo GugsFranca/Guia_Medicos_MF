@@ -237,62 +237,17 @@ public class ExcelProcessorService {
             case FORMULA:
                 try {
                     // Tenta obter o valor da fórmula
-                    switch (cell.getCachedFormulaResultType()) {
-                        case NUMERIC:
-                            return String.valueOf(cell.getNumericCellValue());
-                        case STRING:
-                            return cell.getStringCellValue();
-                        case BOOLEAN:
-                            return String.valueOf(cell.getBooleanCellValue());
-                        default:
-                            return cell.getCellFormula();
-                    }
+                    return switch (cell.getCachedFormulaResultType()) {
+                        case NUMERIC -> String.valueOf(cell.getNumericCellValue());
+                        case STRING -> cell.getStringCellValue();
+                        case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+                        default -> cell.getCellFormula();
+                    };
                 } catch (Exception e) {
                     return cell.getCellFormula();
                 }
-            case BLANK:
-                return "";
             default:
                 return "";
         }
-    }
-
-    // Método para debug - exibe estrutura processada
-    public void logarEstruturaProcessada(List<Clinica> clinicas) {
-        if (clinicas == null || clinicas.isEmpty()) {
-            log.debug("Nenhuma clínica processada.");
-            return;
-        }
-
-        log.debug("=== ESTRUTURA DE DADOS PROCESSADA ===");
-        log.debug("Total de Prestadores: {}", clinicas.size());
-
-        int totalGrupos = 0;
-        int totalSubgrupos = 0;
-        int totalProcedimentos = 0;
-
-        for (Clinica clinica : clinicas) {
-            log.debug("\nPrestador: {}", clinica.getNome());
-            log.debug("Grupos: {}", clinica.getGrupos().size());
-            totalGrupos += clinica.getGrupos().size();
-
-            for (Grupo grupo : clinica.getGrupos()) {
-                log.debug("  └─ Grupo: {}", grupo.getNome());
-                log.debug("    Subgrupos: {}", grupo.getSubgrupos().size());
-                totalSubgrupos += grupo.getSubgrupos().size();
-
-                for (Subgrupo subgrupo : grupo.getSubgrupos()) {
-                    log.debug("      └─ Subgrupo: {}", subgrupo.getNome());
-                    log.debug("        Procedimentos: {}", subgrupo.getProcedimentos().size());
-                    totalProcedimentos += subgrupo.getProcedimentos().size();
-                }
-            }
-        }
-
-        log.debug("\n=== RESUMO ===");
-        log.debug("Prestadores: {}", clinicas.size());
-        log.debug("Grupos: {}", totalGrupos);
-        log.debug("Subgrupos: {}", totalSubgrupos);
-        log.debug("Procedimentos únicos: {}", totalProcedimentos);
     }
 }
