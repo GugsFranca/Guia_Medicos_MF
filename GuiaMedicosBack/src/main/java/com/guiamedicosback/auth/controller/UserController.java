@@ -31,7 +31,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserRequest userRequest, HttpServletResponse response) {
         try {
-            log.info("Realizando login");
+            log.debug("Realizando login");
 
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userRequest.username(), userRequest.password()));
 
@@ -47,7 +47,7 @@ public class UserController {
                     "message", "Login successful",
                     "username", userDetails.getUsername()
             );
-            log.info("Login successful: {}", responseBody);
+            log.debug("Login successful: {}", responseBody);
 
             return ResponseEntity.ok(responseBody);
         }catch (Exception e) {

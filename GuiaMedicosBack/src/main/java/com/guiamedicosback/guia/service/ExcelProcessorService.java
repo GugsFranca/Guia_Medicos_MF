@@ -25,7 +25,7 @@ public class ExcelProcessorService {
         }
 
         String originalFilename = file.getOriginalFilename();
-        log.info("Processando arquivo: {}, Tamanho: {} bytes, Tipo MIME: {}",
+        log.debug("Processando arquivo: {}, Tamanho: {} bytes, Tipo MIME: {}",
                 originalFilename, file.getSize(), file.getContentType());
 
         // Validação do tipo de arquivo
@@ -48,7 +48,7 @@ public class ExcelProcessorService {
 
         // Tenta abrir como XSSF (formato .xlsx) primeiro
         try (Workbook workbook = new XSSFWorkbook(inputStream)) {
-            log.info("Arquivo aberto como XSSFWorkbook (formato .xlsx)");
+            log.debug("Arquivo aberto como XSSFWorkbook (formato .xlsx)");
             processarWorkbook(workbook, clinicas);
         } catch (Exception e1) {
             log.warn("Falha ao abrir como XSSFWorkbook, tentando WorkbookFactory...");
@@ -64,18 +64,18 @@ public class ExcelProcessorService {
 
     private void processarWorkbook(Workbook workbook, List<Clinica> clinicas) {
         int totalSheets = workbook.getNumberOfSheets();
-        log.info("Total de planilhas no arquivo: {}", totalSheets);
+        log.debug("Total de planilhas no arquivo: {}", totalSheets);
 
         // Processa todas as planilhas
         for (int i = 0; i < totalSheets; i++) {
             Sheet sheet = workbook.getSheetAt(i);
             String sheetName = sheet.getSheetName();
-            log.info("Processando planilha {}: '{}'", i + 1, sheetName);
+            log.debug("Processando planilha {}: '{}'", i + 1, sheetName);
 
             processarPlanilha(sheet, clinicas);
         }
 
-        log.info("Processamento concluído. Total de prestadores encontrados: {}", clinicas.size());
+        log.debug("Processamento concluído. Total de prestadores encontrados: {}", clinicas.size());
     }
 
     private void processarPlanilha(Sheet sheet, List<Clinica> clinicas) {
@@ -109,7 +109,7 @@ public class ExcelProcessorService {
             }
         }
 
-        log.info("Planilha '{}': {} linhas de dados processadas", sheet.getSheetName(), linhasProcessadas);
+        log.debug("Planilha '{}': {} linhas de dados processadas", sheet.getSheetName(), linhasProcessadas);
     }
 
     private boolean processarLinha(Row row, List<Clinica> clinicas) {
@@ -260,39 +260,39 @@ public class ExcelProcessorService {
     // Método para debug - exibe estrutura processada
     public void logarEstruturaProcessada(List<Clinica> clinicas) {
         if (clinicas == null || clinicas.isEmpty()) {
-            log.info("Nenhuma clínica processada.");
+            log.debug("Nenhuma clínica processada.");
             return;
         }
 
-        log.info("=== ESTRUTURA DE DADOS PROCESSADA ===");
-        log.info("Total de Prestadores: {}", clinicas.size());
+        log.debug("=== ESTRUTURA DE DADOS PROCESSADA ===");
+        log.debug("Total de Prestadores: {}", clinicas.size());
 
         int totalGrupos = 0;
         int totalSubgrupos = 0;
         int totalProcedimentos = 0;
 
         for (Clinica clinica : clinicas) {
-            log.info("\nPrestador: {}", clinica.getNome());
-            log.info("Grupos: {}", clinica.getGrupos().size());
+            log.debug("\nPrestador: {}", clinica.getNome());
+            log.debug("Grupos: {}", clinica.getGrupos().size());
             totalGrupos += clinica.getGrupos().size();
 
             for (Grupo grupo : clinica.getGrupos()) {
-                log.info("  └─ Grupo: {}", grupo.getNome());
-                log.info("    Subgrupos: {}", grupo.getSubgrupos().size());
+                log.debug("  └─ Grupo: {}", grupo.getNome());
+                log.debug("    Subgrupos: {}", grupo.getSubgrupos().size());
                 totalSubgrupos += grupo.getSubgrupos().size();
 
                 for (Subgrupo subgrupo : grupo.getSubgrupos()) {
-                    log.info("      └─ Subgrupo: {}", subgrupo.getNome());
-                    log.info("        Procedimentos: {}", subgrupo.getProcedimentos().size());
+                    log.debug("      └─ Subgrupo: {}", subgrupo.getNome());
+                    log.debug("        Procedimentos: {}", subgrupo.getProcedimentos().size());
                     totalProcedimentos += subgrupo.getProcedimentos().size();
                 }
             }
         }
 
-        log.info("\n=== RESUMO ===");
-        log.info("Prestadores: {}", clinicas.size());
-        log.info("Grupos: {}", totalGrupos);
-        log.info("Subgrupos: {}", totalSubgrupos);
-        log.info("Procedimentos únicos: {}", totalProcedimentos);
+        log.debug("\n=== RESUMO ===");
+        log.debug("Prestadores: {}", clinicas.size());
+        log.debug("Grupos: {}", totalGrupos);
+        log.debug("Subgrupos: {}", totalSubgrupos);
+        log.debug("Procedimentos únicos: {}", totalProcedimentos);
     }
 }

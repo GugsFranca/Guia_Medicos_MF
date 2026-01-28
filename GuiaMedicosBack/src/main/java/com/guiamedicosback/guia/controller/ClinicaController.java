@@ -31,7 +31,7 @@ public class ClinicaController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadClinicas(@RequestParam("file") MultipartFile file) {
 
-        log.info("Recebendo arquivo para upload: {}", file.getOriginalFilename());
+        log.debug("Recebendo arquivo para upload: {}", file.getOriginalFilename());
 
         try {
             // Validação básica do arquivo
@@ -46,7 +46,7 @@ public class ClinicaController {
 
             clinicaService.addClinicaFromFile(file);
 
-            log.info("Arquivo {} processado com sucesso", originalFilename);
+            log.debug("Arquivo {} processado com sucesso", originalFilename);
             return ResponseEntity.ok("Arquivo processado e clínicas salvas com sucesso!");
 
         } catch (IOException e) {
@@ -61,12 +61,12 @@ public class ClinicaController {
     @Operation(summary = "Adicionar nova clínica", description = "Adiciona uma nova clínica ao sistema")
     @PostMapping
     public ResponseEntity<ClinicaDTO> addClinica(@RequestBody @Valid ClinicaDTO clinicaDTO) {
-        log.info("Adicionando nova clínica: {}", clinicaDTO.nome());
+        log.debug("Adicionando nova clínica: {}", clinicaDTO.nome());
 
         try {
-            log.info("Procedimentos: {} ", clinicaDTO.grupos());
+            log.debug("Procedimentos: {} ", clinicaDTO.grupos());
             ClinicaDTO createdClinica = clinicaService.addClinica(clinicaDTO);
-            log.info("Clínica adicionada com sucesso: {}", createdClinica.nome());
+            log.debug("Clínica adicionada com sucesso: {}", createdClinica.nome());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdClinica);
         } catch (Exception e) {
             log.error("Erro ao adicionar clínica: {}", e.getMessage(), e);
@@ -77,7 +77,7 @@ public class ClinicaController {
     @Operation(summary = "Listar todas as clínicas", description = "Retorna uma lista com todas as clínicas cadastradas")
     @GetMapping
     public ResponseEntity<List<ClinicaDTO>> getAllClinicas() {
-        log.info("Buscando todas as clínicas");
+        log.debug("Buscando todas as clínicas");
 
         try {
             List<ClinicaDTO> clinicas = clinicaService.getClinicas();
@@ -92,11 +92,11 @@ public class ClinicaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClinica(@PathVariable String id) {
 
-        log.info("Deletando clínica com ID: {}", id);
+        log.debug("Deletando clínica com ID: {}", id);
         Long parseId = Long.parseLong(id);
         try {
             clinicaService.deleteClinica(parseId);
-            log.info("Clínica com ID {} deletada com sucesso", id);
+            log.debug("Clínica com ID {} deletada com sucesso", id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error("Erro ao deletar clínica com ID {}: {}", id, e.getMessage(), e);
@@ -111,7 +111,7 @@ public class ClinicaController {
         Long parseId = Long.parseLong(id);
         try {
             ClinicaDTO updatedClinica = clinicaService.updateClinica(parseId, clinicaDTO);
-            log.info("Clínica com ID {} atualizada com sucesso", id);
+            log.debug("Clínica com ID {} atualizada com sucesso", id);
             return ResponseEntity.ok(updatedClinica);
         } catch (RuntimeException e) {
             log.warn("Clínica não atualizada com ID: {}", id);
@@ -126,12 +126,12 @@ public class ClinicaController {
     @GetMapping("/{id}")
     public ResponseEntity<ClinicaDTO> getClinicaById(@PathVariable String id) {
 
-        log.info("Buscando clínica com ID: {}", id);
+        log.debug("Buscando clínica com ID: {}", id);
         Long parseId = Long.parseLong(id);
 
         try {
             ClinicaDTO clinica = clinicaService.getClinicaById(parseId);
-            log.info("Clínica encontrada: {}", clinica.nome());
+            log.debug("Clínica encontrada: {}", clinica.nome());
             return ResponseEntity.ok(clinica);
         } catch (RuntimeException e) {
             log.warn("Clínica não encontrada com ID: {}", id);
@@ -153,12 +153,12 @@ public class ClinicaController {
             @RequestParam(required = false) String subgrupo) {
 
 
-        log.info("Buscando clínicas com critérios - Nome: {}, Município: {}, Endereço: {}, Procedimento: {}, Grupo: {}, Subgrupo {}", nome, municipio, endereco, procedimento, grupo,subgrupo );
+        log.debug("Buscando clínicas com critérios - Nome: {}, Município: {}, Endereço: {}, Procedimento: {}, Grupo: {}, Subgrupo {}", nome, municipio, endereco, procedimento, grupo,subgrupo );
 
         try {
             List<ClinicaDTO> clinicas = clinicaService.searchClinicas(
                     nome, municipio, endereco, procedimento, grupo, subgrupo);
-            log.info("Encontradas {} clínicas com os critérios especificados", clinicas.size());
+            log.debug("Encontradas {} clínicas com os critérios especificados", clinicas.size());
             return ResponseEntity.ok(clinicas);
 
         } catch (IllegalArgumentException e) {
