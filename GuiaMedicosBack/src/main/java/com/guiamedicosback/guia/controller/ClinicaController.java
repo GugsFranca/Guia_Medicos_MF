@@ -2,6 +2,7 @@ package com.guiamedicosback.guia.controller;
 
 import com.guiamedicosback.guia.entity.dto.ClinicaDTO;
 import com.guiamedicosback.guia.service.ClinicaService;
+import com.guiamedicosback.guia.service.ExcelProcessorProced;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,6 +26,8 @@ import java.util.List;
 public class ClinicaController {
 
     private final ClinicaService clinicaService;
+    private final ExcelProcessorProced excelProcessorProced;
+
 
     @Operation(summary = "Upload de arquivo Excel com clínicas",
             description = "Processa um arquivo Excel contendo dados de clínicas e salva no banco de dados")
@@ -57,6 +60,39 @@ public class ClinicaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao processar o arquivo: " + e.getMessage());
         }
     }
+
+    @Operation(summary = "Upload de Excel para importar Grupos, Subgrupos e Procedimentos",
+            description = "Atualiza clínicas existentes (ou cria novas) e importa procedimentos a partir do Excel")
+    @PostMapping(value = "/upload-procedimentos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadProcedimentos(@RequestParam("file") MultipartFile file) {
+
+        log.debug("Recebendo arquivo de procedimentos: {}", file.getOriginalFilename());
+
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("Arquivo vazio.");
+            }
+
+            String name = file.getOriginalFilename();
+            if (name == null || (!name.toLowerCase().endsWith(".xlsx") && !name.toLowerCase().endsWith(".xls"))) {
+                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                        .body("Apenas arquivos Excel (.xlsx, .xls) são suportados.");
+            }
+
+            excelProcessorProced.importarProcedimentos(file);
+
+            return ResponseEntity.ok("Procedimentos importados e vinculados às clínicas com sucesso!");
+
+        } catch (IOException e) {
+            log.error("Erro de IO ao processar Excel de procedimentos", e);
+            return ResponseEntity.badRequest().body("Erro ao ler o arquivo: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Erro ao importar procedimentos", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro interno ao importar procedimentos: " + e.getMessage());
+        }
+    }
+
 
     @Operation(summary = "Adicionar nova clínica", description = "Adiciona uma nova clínica ao sistema")
     @PostMapping

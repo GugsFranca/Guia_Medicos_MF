@@ -1,6 +1,5 @@
 package com.guiamedicosback.guia.entity;
 
-import ch.qos.logback.core.status.StatusManager;
 import jakarta.persistence.*;
 import lombok.*;
 
