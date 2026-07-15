@@ -5,11 +5,13 @@ import {
     Separator, Flex, Table, IconButton
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // <-- Importado para redirecionamento
 import type { Clinica, Grupo, Subgrupo } from "../types";
 import { ColorModeButton } from "../ui/color-mode";
-import { MdEdit, MdDelete, MdCheck, MdClose } from "react-icons/md"; // Material Design icons
+import { MdEdit, MdDelete, MdCheck, MdClose, MdLogout } from "react-icons/md"; // <-- Adicionado MdLogout
 
 export const AdminPage = () => {
+    const router = useRouter(); // <-- Instanciado o router
     const [clinicas, setClinicas] = useState<Clinica[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -85,6 +87,15 @@ export const AdminPage = () => {
             if (res.ok) loadClinicas();
         } catch (err) {
             alert("Erro ao deletar");
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.replace('/login');
+        } catch (error) {
+            console.error("Erro ao fazer logout", error);
         }
     };
 
@@ -212,7 +223,16 @@ export const AdminPage = () => {
 
     return (
         <Box maxW="container.lg" mx={{ base: "10px", md: "auto" }} my={8} p={6} bg="bg.panel" borderRadius="lg" shadow="md" borderWidth="1px" borderColor="border.emphasized">
-            <Heading size="xl" mb={6} textAlign="center">Gestão de Clínicas <ColorModeButton /></Heading>
+
+            <Flex justify="space-between" align="center" mb={6} direction={{ base: "column", md: "row" }} gap={4}>
+                <Heading size="xl">Gestão de Clínicas</Heading>
+                <Flex gap={3} align="center">
+                    <ColorModeButton />
+                    <Button colorPalette="red" variant="outline" onClick={handleLogout}>
+                        <MdLogout /> Sair
+                    </Button>
+                </Flex>
+            </Flex>
 
             {/* FORMULÁRIO DE INSERÇÃO/EDIÇÃO */}
             <Card.Root mb={10} variant="outline" p={4}>
