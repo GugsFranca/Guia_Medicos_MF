@@ -36,3 +36,5 @@ build/
 /Dockerfile
 GuiaMedicosBack/src/main/resources/application.properties
 /docker-compose.yml
+/src/main/resources/application.properties
+/docker-compose.yml‎

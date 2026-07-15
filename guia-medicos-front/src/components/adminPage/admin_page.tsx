@@ -108,7 +108,7 @@ export const AdminPage = () => {
         if (!newGrupo || !newSubgrupo || !newProcedimentos) return;
 
         const procedimentosArray = newProcedimentos
-            .split(",")
+            .split(";")
             .map(p => p.trim())
             .filter(p => p !== "");
 
@@ -148,7 +148,7 @@ export const AdminPage = () => {
 
         const gruposAtualizados = [...(formData.grupos || [])];
         const novosProcedimentos = newProcedimentos
-            .split(",")
+            .split(";")
             .map(p => p.trim())
             .filter(p => p !== "");
 
@@ -265,7 +265,7 @@ export const AdminPage = () => {
                                 onChange={e => setNewSubgrupo(e.target.value)}
                             />
                             <Input
-                                placeholder="Procedimentos (separados por vírgula)"
+                                placeholder="Procedimentos (separados por ;)"
                                 value={newProcedimentos}
                                 onChange={e => setNewProcedimentos(e.target.value)}
                             />
@@ -371,7 +371,7 @@ export const AdminPage = () => {
                                                 <Flex gap={2} mt={2}>
                                                     <Input
                                                         size="xs"
-                                                        placeholder="Adicionar procedimentos (separados por vírgula)"
+                                                        placeholder="Adicionar procedimentos (separados por ;)"
                                                         value={newProcedimentos}
                                                         onChange={e => setNewProcedimentos(e.target.value)}
                                                     />
